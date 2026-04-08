@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/lumalabs/luma-agents-go/internal/apijson"
+	"github.com/stainless-sdks/luma-agents-go/internal/apijson"
 )
 
 // Error represents an error that originates from the API, i.e. when a request is
