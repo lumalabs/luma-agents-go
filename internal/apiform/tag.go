@@ -9,15 +9,12 @@ const apiStructTag = "api"
 const jsonStructTag = "json"
 const formStructTag = "form"
 const formatStructTag = "format"
-const defaultStructTag = "default"
 
 type parsedStructTag struct {
-	name         string
-	required     bool
-	extras       bool
-	metadata     bool
-	omitzero     bool
-	defaultValue any
+	name     string
+	required bool
+	extras   bool
+	metadata bool
 }
 
 func parseFormStructTag(field reflect.StructField) (tag parsedStructTag, ok bool) {
@@ -41,27 +38,12 @@ func parseFormStructTag(field reflect.StructField) (tag parsedStructTag, ok bool
 			tag.extras = true
 		case "metadata":
 			tag.metadata = true
-		case "omitzero":
-			tag.omitzero = true
 		}
 	}
 
+	// the `api` struct tag is only used alongside `json` for custom behaviour
 	parseApiStructTag(field, &tag)
-	parseDefaultStructTag(field, &tag)
 	return tag, ok
-}
-
-func parseDefaultStructTag(field reflect.StructField, tag *parsedStructTag) {
-	if field.Type.Kind() != reflect.String {
-		// Only strings are currently supported
-		return
-	}
-
-	raw, ok := field.Tag.Lookup(defaultStructTag)
-	if !ok {
-		return
-	}
-	tag.defaultValue = raw
 }
 
 func parseApiStructTag(field reflect.StructField, tag *parsedStructTag) {

@@ -7,13 +7,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/luma-agents-go"
-	"github.com/stainless-sdks/luma-agents-go/internal/testutil"
-	"github.com/stainless-sdks/luma-agents-go/option"
+	"github.com/lumalabs/luma-agents-go"
+	"github.com/lumalabs/luma-agents-go/internal/testutil"
+	"github.com/lumalabs/luma-agents-go/option"
 )
 
 func TestUsage(t *testing.T) {
-	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -23,11 +22,16 @@ func TestUsage(t *testing.T) {
 	}
 	client := lumaagents.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 	)
-	order, err := client.Store.Orders.New(context.TODO(), lumaagents.StoreOrderNewParams{})
+	generation, err := client.Generations.New(context.TODO(), lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err != nil {
-		t.Fatalf("err should be nil: %s", err.Error())
+		t.Error(err)
+		return
 	}
-	t.Logf("%+v\n", order.ID)
+	t.Logf("%+v\n", generation.ID)
 }

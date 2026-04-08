@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/luma-agents-go"
-	"github.com/stainless-sdks/luma-agents-go/internal"
-	"github.com/stainless-sdks/luma-agents-go/option"
+	"github.com/lumalabs/luma-agents-go"
+	"github.com/lumalabs/luma-agents-go/internal"
+	"github.com/lumalabs/luma-agents-go/option"
 )
 
 type closureTransport struct {
@@ -26,7 +26,7 @@ func (t *closureTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 func TestUserAgentHeader(t *testing.T) {
 	var userAgent string
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -38,8 +38,12 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	_, _ = client.Store.ListInventory(context.Background())
-	if userAgent != fmt.Sprintf("LumaAgents/Go %s", internal.PackageVersion) {
+	_, _ = client.Generations.New(context.Background(), lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
+	if userAgent != fmt.Sprintf("Luma/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}
 }
@@ -47,7 +51,7 @@ func TestUserAgentHeader(t *testing.T) {
 func TestRetryAfter(t *testing.T) {
 	retryCountHeaders := make([]string, 0)
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -62,7 +66,11 @@ func TestRetryAfter(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Store.ListInventory(context.Background())
+	_, err := client.Generations.New(context.Background(), lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -81,7 +89,7 @@ func TestRetryAfter(t *testing.T) {
 func TestDeleteRetryCountHeader(t *testing.T) {
 	retryCountHeaders := make([]string, 0)
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -97,7 +105,11 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 		}),
 		option.WithHeaderDel("X-Stainless-Retry-Count"),
 	)
-	_, err := client.Store.ListInventory(context.Background())
+	_, err := client.Generations.New(context.Background(), lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -111,7 +123,7 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 func TestOverwriteRetryCountHeader(t *testing.T) {
 	retryCountHeaders := make([]string, 0)
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -127,7 +139,11 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 		}),
 		option.WithHeader("X-Stainless-Retry-Count", "42"),
 	)
-	_, err := client.Store.ListInventory(context.Background())
+	_, err := client.Generations.New(context.Background(), lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -141,7 +157,7 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 func TestRetryAfterMs(t *testing.T) {
 	attempts := 0
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -156,7 +172,11 @@ func TestRetryAfterMs(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Store.ListInventory(context.Background())
+	_, err := client.Generations.New(context.Background(), lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -167,7 +187,7 @@ func TestRetryAfterMs(t *testing.T) {
 
 func TestContextCancel(t *testing.T) {
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -179,7 +199,11 @@ func TestContextCancel(t *testing.T) {
 	)
 	cancelCtx, cancel := context.WithCancel(context.Background())
 	cancel()
-	_, err := client.Store.ListInventory(cancelCtx)
+	_, err := client.Generations.New(cancelCtx, lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err == nil {
 		t.Error("Expected there to be a cancel error")
 	}
@@ -187,7 +211,7 @@ func TestContextCancel(t *testing.T) {
 
 func TestContextCancelDelay(t *testing.T) {
 	client := lumaagents.NewClient(
-		option.WithAPIKey("My API Key"),
+		option.WithAuthToken("My Auth Token"),
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
@@ -199,7 +223,11 @@ func TestContextCancelDelay(t *testing.T) {
 	)
 	cancelCtx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	_, err := client.Store.ListInventory(cancelCtx)
+	_, err := client.Generations.New(cancelCtx, lumaagents.GenerationNewParams{
+		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+		Model:       lumaagents.F("uni-1"),
+	})
 	if err == nil {
 		t.Error("expected there to be a cancel error")
 	}
@@ -215,7 +243,7 @@ func TestContextDeadline(t *testing.T) {
 
 	go func() {
 		client := lumaagents.NewClient(
-			option.WithAPIKey("My API Key"),
+			option.WithAuthToken("My Auth Token"),
 			option.WithHTTPClient(&http.Client{
 				Transport: &closureTransport{
 					fn: func(req *http.Request) (*http.Response, error) {
@@ -225,7 +253,11 @@ func TestContextDeadline(t *testing.T) {
 				},
 			}),
 		)
-		_, err := client.Store.ListInventory(deadlineCtx)
+		_, err := client.Generations.New(deadlineCtx, lumaagents.GenerationNewParams{
+			Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
+			AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
+			Model:       lumaagents.F("uni-1"),
+		})
 		if err == nil {
 			t.Error("expected there to be a deadline error")
 		}
