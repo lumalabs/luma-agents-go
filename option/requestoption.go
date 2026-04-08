@@ -11,15 +11,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/luma-agents-go/internal/requestconfig"
+	"github.com/lumalabs/luma-agents-go/internal/requestconfig"
 	"github.com/tidwall/sjson"
 )
 
-// RequestOption is an option for the requests made by the luma-agents API Client
+// RequestOption is an option for the requests made by the luma API Client
 // which can be supplied to clients, services, and methods. You can read more about this functional
 // options pattern in our [README].
 //
-// [README]: https://pkg.go.dev/github.com/stainless-sdks/luma-agents-go#readme-requestoptions
+// [README]: https://pkg.go.dev/github.com/lumalabs/luma-agents-go#readme-requestoptions
 type RequestOption = requestconfig.RequestOption
 
 // WithBaseURL returns a RequestOption that sets the BaseURL for the client.
@@ -168,7 +168,7 @@ func WithQueryDel(key string) RequestOption {
 // The key accepts a string as defined by the [sjson format].
 //
 // [sjson format]: https://github.com/tidwall/sjson
-func WithJSONSet(key string, value any) RequestOption {
+func WithJSONSet(key string, value interface{}) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) (err error) {
 		var b []byte
 
@@ -263,13 +263,20 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 // environment to be the "production" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentProduction() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://petstore3.swagger.io/api/v3/")
+	return requestconfig.WithDefaultBaseURL("https://agents.lumalabs.ai/v1/")
 }
 
-// WithAPIKey returns a RequestOption that sets the client setting "api_key".
-func WithAPIKey(value string) RequestOption {
+// WithEnvironmentStaging returns a RequestOption that sets the current
+// environment to be the "staging" environment. An environment specifies which base URL
+// to use by default.
+func WithEnvironmentStaging() RequestOption {
+	return requestconfig.WithDefaultBaseURL("https://vespa-service.sandbox.labs.lumalabs.ai/v1/")
+}
+
+// WithAuthToken returns a RequestOption that sets the client setting "auth_token".
+func WithAuthToken(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
-		r.APIKey = value
-		return r.Apply(WithHeader("api_key", r.APIKey))
+		r.AuthToken = value
+		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.AuthToken)))
 	})
 }

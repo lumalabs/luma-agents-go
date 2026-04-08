@@ -8,48 +8,41 @@ import (
 	"os"
 	"slices"
 
-	"github.com/stainless-sdks/luma-agents-go/internal/requestconfig"
-	"github.com/stainless-sdks/luma-agents-go/option"
+	"github.com/lumalabs/luma-agents-go/internal/requestconfig"
+	"github.com/lumalabs/luma-agents-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
-// interacting with the luma-agents API. You should not instantiate this client
-// directly, and instead use the [NewClient] method instead.
+// interacting with the luma API. You should not instantiate this client directly,
+// and instead use the [NewClient] method instead.
 type Client struct {
-	options []option.RequestOption
-	// Everything about your Pets
-	Pets PetService
-	// Access to Petstore orders
-	Store StoreService
-	// Operations about user
-	Users UserService
+	Options     []option.RequestOption
+	Generations *GenerationService
 }
 
-// DefaultClientOptions read from the environment (PETSTORE_API_KEY,
-// LUMA_AGENTS_BASE_URL). This should be used to initialize new clients.
+// DefaultClientOptions read from the environment (LUMA_AGENTS_API_KEY,
+// LUMA_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
 	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
-	if o, ok := os.LookupEnv("LUMA_AGENTS_BASE_URL"); ok {
+	if o, ok := os.LookupEnv("LUMA_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
-	if o, ok := os.LookupEnv("PETSTORE_API_KEY"); ok {
-		defaults = append(defaults, option.WithAPIKey(o))
+	if o, ok := os.LookupEnv("LUMA_AGENTS_API_KEY"); ok {
+		defaults = append(defaults, option.WithAuthToken(o))
 	}
 	return defaults
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (PETSTORE_API_KEY, LUMA_AGENTS_BASE_URL). The option passed in as
+// environment (LUMA_AGENTS_API_KEY, LUMA_BASE_URL). The option passed in as
 // arguments are applied after these default arguments, and all option will be
 // passed down to the services and requests that this client makes.
-func NewClient(opts ...option.RequestOption) (r Client) {
+func NewClient(opts ...option.RequestOption) (r *Client) {
 	opts = append(DefaultClientOptions(), opts...)
 
-	r = Client{options: opts}
+	r = &Client{Options: opts}
 
-	r.Pets = NewPetService(opts...)
-	r.Store = NewStoreService(opts...)
-	r.Users = NewUserService(opts...)
+	r.Generations = NewGenerationService(opts...)
 
 	return
 }
@@ -85,40 +78,40 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 //
 // For even greater flexibility, see [option.WithResponseInto] and
 // [option.WithResponseBodyInto].
-func (r *Client) Execute(ctx context.Context, method string, path string, params any, res any, opts ...option.RequestOption) error {
-	opts = slices.Concat(r.options, opts)
+func (r *Client) Execute(ctx context.Context, method string, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
+	opts = slices.Concat(r.Options, opts)
 	return requestconfig.ExecuteNewRequest(ctx, method, path, params, res, opts...)
 }
 
 // Get makes a GET request with the given URL, params, and optionally deserializes
 // to a response. See [Execute] documentation on the params and response.
-func (r *Client) Get(ctx context.Context, path string, params any, res any, opts ...option.RequestOption) error {
+func (r *Client) Get(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
 	return r.Execute(ctx, http.MethodGet, path, params, res, opts...)
 }
 
 // Post makes a POST request with the given URL, params, and optionally
 // deserializes to a response. See [Execute] documentation on the params and
 // response.
-func (r *Client) Post(ctx context.Context, path string, params any, res any, opts ...option.RequestOption) error {
+func (r *Client) Post(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
 	return r.Execute(ctx, http.MethodPost, path, params, res, opts...)
 }
 
 // Put makes a PUT request with the given URL, params, and optionally deserializes
 // to a response. See [Execute] documentation on the params and response.
-func (r *Client) Put(ctx context.Context, path string, params any, res any, opts ...option.RequestOption) error {
+func (r *Client) Put(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
 	return r.Execute(ctx, http.MethodPut, path, params, res, opts...)
 }
 
 // Patch makes a PATCH request with the given URL, params, and optionally
 // deserializes to a response. See [Execute] documentation on the params and
 // response.
-func (r *Client) Patch(ctx context.Context, path string, params any, res any, opts ...option.RequestOption) error {
+func (r *Client) Patch(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
 	return r.Execute(ctx, http.MethodPatch, path, params, res, opts...)
 }
 
 // Delete makes a DELETE request with the given URL, params, and optionally
 // deserializes to a response. See [Execute] documentation on the params and
 // response.
-func (r *Client) Delete(ctx context.Context, path string, params any, res any, opts ...option.RequestOption) error {
+func (r *Client) Delete(ctx context.Context, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
 	return r.Execute(ctx, http.MethodDelete, path, params, res, opts...)
 }

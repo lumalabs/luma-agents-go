@@ -1,9 +1,9 @@
-module github.com/stainless-sdks/luma-agents-go
+module github.com/lumalabs/luma-agents-go
 
 go 1.22
 
 require (
-	github.com/tidwall/gjson v1.18.0
+	github.com/tidwall/gjson v1.14.4
 	github.com/tidwall/sjson v1.2.5
 )
 

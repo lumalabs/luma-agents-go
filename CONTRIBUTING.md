@@ -4,7 +4,7 @@ To set up the repository, run:
 
 ```sh
 $ ./scripts/bootstrap
-$ ./scripts/lint
+$ ./scripts/build
 ```
 
 This will install all the required dependencies and build the SDK.
@@ -41,10 +41,16 @@ To use a local version of this library from source in another project, edit the 
 directive. This can be done through the CLI with the following:
 
 ```sh
-$ go mod edit -replace github.com/stainless-sdks/luma-agents-go=/path/to/luma-agents-go
+$ go mod edit -replace github.com/lumalabs/luma-agents-go=/path/to/luma-agents-go
 ```
 
 ## Running tests
+
+Most tests require you to [set up a mock server](https://github.com/dgellow/steady) against the OpenAPI spec to run the tests.
+
+```sh
+$ ./scripts/mock
+```
 
 ```sh
 $ ./scripts/test
