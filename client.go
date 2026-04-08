@@ -8,8 +8,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/lumalabs/luma-agents-go/internal/requestconfig"
-	"github.com/lumalabs/luma-agents-go/option"
+	"github.com/stainless-sdks/luma-agents-go/internal/requestconfig"
+	"github.com/stainless-sdks/luma-agents-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
