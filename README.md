@@ -41,7 +41,6 @@ import (
 func main() {
 	client := lumaagents.NewClient(
 		option.WithAuthToken("My Auth Token"), // defaults to os.LookupEnv("LUMA_AGENTS_API_KEY")
-		option.WithEnvironmentStaging(),       // defaults to option.WithEnvironmentProduction()
 	)
 	generation, err := client.Generations.New(context.TODO(), lumaagents.GenerationNewParams{
 		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),

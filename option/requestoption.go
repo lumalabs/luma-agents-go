@@ -266,13 +266,6 @@ func WithEnvironmentProduction() RequestOption {
 	return requestconfig.WithDefaultBaseURL("https://agents.lumalabs.ai/v1/")
 }
 
-// WithEnvironmentStaging returns a RequestOption that sets the current
-// environment to be the "staging" environment. An environment specifies which base URL
-// to use by default.
-func WithEnvironmentStaging() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://vespa-service.sandbox.labs.lumalabs.ai/v1/")
-}
-
 // WithAuthToken returns a RequestOption that sets the client setting "auth_token".
 func WithAuthToken(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
