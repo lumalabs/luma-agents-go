@@ -68,7 +68,9 @@ type Generation struct {
 	State GenerationState `json:"state" api:"required"`
 	// The kind of generation to perform
 	Type GenerationType `json:"type" api:"required"`
-	// Error description (populated on failure)
+	// Machine-readable failure code for programmatic handling
+	FailureCode GenerationFailureCode `json:"failure_code" api:"nullable"`
+	// Human-readable failure description
 	FailureReason string `json:"failure_reason" api:"nullable"`
 	// Generated outputs (populated on completion)
 	Output []GenerationOutput `json:"output"`
@@ -82,6 +84,7 @@ type generationJSON struct {
 	Model         apijson.Field
 	State         apijson.Field
 	Type          apijson.Field
+	FailureCode   apijson.Field
 	FailureReason apijson.Field
 	Output        apijson.Field
 	raw           string
@@ -130,6 +133,23 @@ func (r GenerationType) IsKnown() bool {
 	return false
 }
 
+// Machine-readable failure code for programmatic handling
+type GenerationFailureCode string
+
+const (
+	GenerationFailureCodeContentModerated GenerationFailureCode = "content_moderated"
+	GenerationFailureCodeGenerationFailed GenerationFailureCode = "generation_failed"
+	GenerationFailureCodeOutputNotFound   GenerationFailureCode = "output_not_found"
+)
+
+func (r GenerationFailureCode) IsKnown() bool {
+	switch r {
+	case GenerationFailureCodeContentModerated, GenerationFailureCodeGenerationFailed, GenerationFailureCodeOutputNotFound:
+		return true
+	}
+	return false
+}
+
 // A single generated output
 type GenerationOutput struct {
 	// Media type (e.g. image)
@@ -161,7 +181,7 @@ type GenerationNewParams struct {
 	Prompt param.Field[string] `json:"prompt" api:"required"`
 	// Output aspect ratio
 	AspectRatio param.Field[GenerationNewParamsAspectRatio] `json:"aspect_ratio"`
-	// Up to 8 reference images for style/content guidance
+	// Reference images for style/content guidance. Up to 8 reference images.
 	ImageRef param.Field[[]GenerationNewParamsImageRef] `json:"image_ref"`
 	// Model to use
 	Model param.Field[string] `json:"model"`
