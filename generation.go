@@ -139,12 +139,13 @@ type GenerationFailureCode string
 const (
 	GenerationFailureCodeContentModerated GenerationFailureCode = "content_moderated"
 	GenerationFailureCodeGenerationFailed GenerationFailureCode = "generation_failed"
+	GenerationFailureCodeBudgetExhausted  GenerationFailureCode = "budget_exhausted"
 	GenerationFailureCodeOutputNotFound   GenerationFailureCode = "output_not_found"
 )
 
 func (r GenerationFailureCode) IsKnown() bool {
 	switch r {
-	case GenerationFailureCodeContentModerated, GenerationFailureCodeGenerationFailed, GenerationFailureCodeOutputNotFound:
+	case GenerationFailureCodeContentModerated, GenerationFailureCodeGenerationFailed, GenerationFailureCodeBudgetExhausted, GenerationFailureCodeOutputNotFound:
 		return true
 	}
 	return false
@@ -181,7 +182,8 @@ type GenerationNewParams struct {
 	Prompt param.Field[string] `json:"prompt" api:"required"`
 	// Output aspect ratio
 	AspectRatio param.Field[GenerationNewParamsAspectRatio] `json:"aspect_ratio"`
-	// Reference images for style/content guidance. Up to 8 reference images.
+	// Reference images for style/content guidance. Up to 9 for type 'image', up to 8
+	// for type 'image_edit'.
 	ImageRef param.Field[[]GenerationNewParamsImageRef] `json:"image_ref"`
 	// Model to use
 	Model param.Field[string] `json:"model"`
