@@ -23,7 +23,7 @@ type Client struct {
 // DefaultClientOptions read from the environment (LUMA_AGENTS_API_KEY,
 // LUMA_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
-	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
+	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentProduction()}
 	if o, ok := os.LookupEnv("LUMA_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
