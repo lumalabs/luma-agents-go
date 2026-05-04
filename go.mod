@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/luma-agents-go
+module github.com/lumalabs/luma-agents-go
 
 go 1.22
 

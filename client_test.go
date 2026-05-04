@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/luma-agents-go"
-	"github.com/stainless-sdks/luma-agents-go/internal"
-	"github.com/stainless-sdks/luma-agents-go/option"
+	"github.com/lumalabs/luma-agents-go"
+	"github.com/lumalabs/luma-agents-go/internal"
+	"github.com/lumalabs/luma-agents-go/option"
 )
 
 type closureTransport struct {
