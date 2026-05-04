@@ -63,7 +63,7 @@ type Generation struct {
 	// Creation timestamp
 	CreatedAt string `json:"created_at" api:"required"`
 	// Model used
-	Model string `json:"model" api:"required"`
+	Model Model `json:"model" api:"required"`
 	// Current state of the generation
 	State GenerationState `json:"state" api:"required"`
 	// The kind of generation to perform
@@ -182,6 +182,24 @@ func (r generationOutputJSON) RawJSON() string {
 	return r.raw
 }
 
+// Model identifier. `uni-1` is the default tier; `uni-1-max` produces
+// higher-quality output than `uni-1` at a higher per-image price. Both models are
+// available to all accounts — see Pricing for per-image rates.
+type Model string
+
+const (
+	ModelUni1    Model = "uni-1"
+	ModelUni1Max Model = "uni-1-max"
+)
+
+func (r Model) IsKnown() bool {
+	switch r {
+	case ModelUni1, ModelUni1Max:
+		return true
+	}
+	return false
+}
+
 type GenerationNewParams struct {
 	// Text prompt
 	Prompt param.Field[string] `json:"prompt" api:"required"`
@@ -190,8 +208,10 @@ type GenerationNewParams struct {
 	// Reference images for style/content guidance. Up to 9 for type 'image', up to 8
 	// for type 'image_edit'.
 	ImageRef param.Field[[]GenerationNewParamsImageRef] `json:"image_ref"`
-	// Model to use
-	Model param.Field[string] `json:"model"`
+	// Model identifier. `uni-1` is the default tier; `uni-1-max` produces
+	// higher-quality output than `uni-1` at a higher per-image price. Both models are
+	// available to all accounts — see Pricing for per-image rates.
+	Model param.Field[Model] `json:"model"`
 	// Output image format
 	OutputFormat param.Field[GenerationNewParamsOutputFormat] `json:"output_format"`
 	// Reference image for guided generation. Provide either url or inline base64 data

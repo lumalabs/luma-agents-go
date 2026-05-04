@@ -53,7 +53,7 @@ func main() {
 	generation, err := client.Generations.New(context.TODO(), lumaagents.GenerationNewParams{
 		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
 		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
-		Model:       lumaagents.F("uni-1"),
+		Model:       lumaagents.F(lumaagents.ModelUni1),
 	})
 	if err != nil {
 		panic(err.Error())
@@ -179,7 +179,7 @@ To handle errors, we recommend that you use the `errors.As` pattern:
 _, err := client.Generations.New(context.TODO(), lumaagents.GenerationNewParams{
 	Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
 	AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
-	Model:       lumaagents.F("uni-1"),
+	Model:       lumaagents.F(lumaagents.ModelUni1),
 })
 if err != nil {
 	var apierr *lumaagents.Error
@@ -210,7 +210,7 @@ client.Generations.New(
 	lumaagents.GenerationNewParams{
 		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
 		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
-		Model:       lumaagents.F("uni-1"),
+		Model:       lumaagents.F(lumaagents.ModelUni1),
 	},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
@@ -250,7 +250,7 @@ client.Generations.New(
 	lumaagents.GenerationNewParams{
 		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
 		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
-		Model:       lumaagents.F("uni-1"),
+		Model:       lumaagents.F(lumaagents.ModelUni1),
 	},
 	option.WithMaxRetries(5),
 )
@@ -269,7 +269,7 @@ generation, err := client.Generations.New(
 	lumaagents.GenerationNewParams{
 		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
 		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
-		Model:       lumaagents.F("uni-1"),
+		Model:       lumaagents.F(lumaagents.ModelUni1),
 	},
 	option.WithResponseInto(&response),
 )
