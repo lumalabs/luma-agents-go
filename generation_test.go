@@ -33,7 +33,7 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 			MediaType: lumaagents.F("media_type"),
 			URL:       lumaagents.F("url"),
 		}}),
-		Model:        lumaagents.F("model"),
+		Model:        lumaagents.F(lumaagents.ModelUni1),
 		OutputFormat: lumaagents.F(lumaagents.GenerationNewParamsOutputFormatPng),
 		Source: lumaagents.F(lumaagents.GenerationNewParamsSource{
 			Data:      lumaagents.F("data"),

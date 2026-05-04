@@ -1,10 +1,15 @@
 # Generations
 
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go">lumaagents</a>.<a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go#Model">Model</a>
+
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go">lumaagents</a>.<a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go#Generation">Generation</a>
 - <a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go">lumaagents</a>.<a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go#GenerationFailureCode">GenerationFailureCode</a>
 - <a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go">lumaagents</a>.<a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go#GenerationOutput">GenerationOutput</a>
+- <a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go">lumaagents</a>.<a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go#Model">Model</a>
 
 Methods:
 

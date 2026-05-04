@@ -27,7 +27,7 @@ func TestUsage(t *testing.T) {
 	generation, err := client.Generations.New(context.TODO(), lumaagents.GenerationNewParams{
 		Prompt:      lumaagents.F("A glass of iced coffee on a marble countertop, morning light streaming through a window"),
 		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio16_9),
-		Model:       lumaagents.F("uni-1"),
+		Model:       lumaagents.F(lumaagents.ModelUni1),
 	})
 	if err != nil {
 		t.Error(err)
