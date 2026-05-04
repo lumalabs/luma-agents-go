@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/stainless-sdks/luma-agents-go/internal/apijson"
-	"github.com/stainless-sdks/luma-agents-go/internal/param"
-	"github.com/stainless-sdks/luma-agents-go/internal/requestconfig"
-	"github.com/stainless-sdks/luma-agents-go/option"
+	"github.com/lumalabs/luma-agents-go/internal/apijson"
+	"github.com/lumalabs/luma-agents-go/internal/param"
+	"github.com/lumalabs/luma-agents-go/internal/requestconfig"
+	"github.com/lumalabs/luma-agents-go/option"
 )
 
 // GenerationService contains methods and other services that help with interacting
