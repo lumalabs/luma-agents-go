@@ -137,15 +137,20 @@ func (r GenerationType) IsKnown() bool {
 type GenerationFailureCode string
 
 const (
-	GenerationFailureCodeContentModerated GenerationFailureCode = "content_moderated"
-	GenerationFailureCodeGenerationFailed GenerationFailureCode = "generation_failed"
-	GenerationFailureCodeBudgetExhausted  GenerationFailureCode = "budget_exhausted"
-	GenerationFailureCodeOutputNotFound   GenerationFailureCode = "output_not_found"
+	GenerationFailureCodeContentModerated  GenerationFailureCode = "content_moderated"
+	GenerationFailureCodeGenerationFailed  GenerationFailureCode = "generation_failed"
+	GenerationFailureCodeBudgetExhausted   GenerationFailureCode = "budget_exhausted"
+	GenerationFailureCodeOutputNotFound    GenerationFailureCode = "output_not_found"
+	GenerationFailureCodeImageTooLarge     GenerationFailureCode = "image_too_large"
+	GenerationFailureCodeUnsupportedFormat GenerationFailureCode = "unsupported_format"
+	GenerationFailureCodeCorruptInput      GenerationFailureCode = "corrupt_input"
+	GenerationFailureCodeInvalidRequest    GenerationFailureCode = "invalid_request"
+	GenerationFailureCodeRateLimited       GenerationFailureCode = "rate_limited"
 )
 
 func (r GenerationFailureCode) IsKnown() bool {
 	switch r {
-	case GenerationFailureCodeContentModerated, GenerationFailureCodeGenerationFailed, GenerationFailureCodeBudgetExhausted, GenerationFailureCodeOutputNotFound:
+	case GenerationFailureCodeContentModerated, GenerationFailureCodeGenerationFailed, GenerationFailureCodeBudgetExhausted, GenerationFailureCodeOutputNotFound, GenerationFailureCodeImageTooLarge, GenerationFailureCodeUnsupportedFormat, GenerationFailureCodeCorruptInput, GenerationFailureCodeInvalidRequest, GenerationFailureCodeRateLimited:
 		return true
 	}
 	return false
@@ -196,6 +201,12 @@ type GenerationNewParams struct {
 	Style param.Field[GenerationNewParamsStyle] `json:"style"`
 	// The kind of generation to perform
 	Type param.Field[GenerationNewParamsType] `json:"type"`
+	// Your end-user's stable opaque identifier (no PII). Forwarded to upstream model
+	// providers as their per-user tagging field so trust & safety violations can be
+	// attributed to a specific end-user rather than the whole API account. Also used
+	// for per-end-user usage breakdowns in /v1/usage. Strongly recommended for partner
+	// integrations.
+	UserID param.Field[string] `json:"user_id"`
 	// Enable web search grounding — the agent can search the web and download
 	// reference images before generating.
 	WebSearch param.Field[bool] `json:"web_search"`
