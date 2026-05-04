@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/lumalabs/luma-agents-go"
-	"github.com/lumalabs/luma-agents-go/internal/testutil"
-	"github.com/lumalabs/luma-agents-go/option"
+	"github.com/stainless-sdks/luma-agents-go"
+	"github.com/stainless-sdks/luma-agents-go/internal/testutil"
+	"github.com/stainless-sdks/luma-agents-go/option"
 )
 
 func TestGenerationNewWithOptionalParams(t *testing.T) {

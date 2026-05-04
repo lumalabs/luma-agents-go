@@ -13,7 +13,7 @@ import (
 
 	"github.com/tidwall/sjson"
 
-	"github.com/lumalabs/luma-agents-go/internal/param"
+	"github.com/stainless-sdks/luma-agents-go/internal/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc

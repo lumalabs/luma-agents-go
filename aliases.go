@@ -3,7 +3,7 @@
 package lumaagents
 
 import (
-	"github.com/lumalabs/luma-agents-go/internal/apierror"
+	"github.com/stainless-sdks/luma-agents-go/internal/apierror"
 )
 
 type Error = apierror.Error

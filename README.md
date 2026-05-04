@@ -1,31 +1,23 @@
 # Luma Go API Library
 
-<a href="https://pkg.go.dev/github.com/lumalabs/luma-agents-go"><img src="https://pkg.go.dev/badge/github.com/lumalabs/luma-agents-go.svg" alt="Go Reference"></a>
+<a href="https://pkg.go.dev/github.com/stainless-sdks/luma-agents-go"><img src="https://pkg.go.dev/badge/github.com/stainless-sdks/luma-agents-go.svg" alt="Go Reference"></a>
 
-The Luma Go library provides convenient access to the [Luma REST API](https://luma-agents.stldocs.app)
+The Luma Go library provides convenient access to the [Luma REST API](https://docs.agents.lumalabs.ai)
 from applications written in Go.
 
 ## Installation
 
-<!-- x-release-please-start-version -->
-
 ```go
 import (
-	"github.com/lumalabs/luma-agents-go" // imported as lumaagents
+	"github.com/stainless-sdks/luma-agents-go" // imported as lumaagents
 )
 ```
 
-<!-- x-release-please-end -->
-
 Or to pin the version:
 
-<!-- x-release-please-start-version -->
-
 ```sh
-go get -u 'github.com/lumalabs/luma-agents-go@v0.1.0'
+go get -u 'github.com/stainless-sdks/luma-agents-go@v0.1.0'
 ```
-
-<!-- x-release-please-end -->
 
 ## Requirements
 
@@ -42,8 +34,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lumalabs/luma-agents-go"
-	"github.com/lumalabs/luma-agents-go/option"
+	"github.com/stainless-sdks/luma-agents-go"
+	"github.com/stainless-sdks/luma-agents-go/option"
 )
 
 func main() {
@@ -155,7 +147,7 @@ client.Generations.New(context.TODO(), ...,
 )
 ```
 
-See the [full list of request options](https://pkg.go.dev/github.com/lumalabs/luma-agents-go/option).
+See the [full list of request options](https://pkg.go.dev/github.com/stainless-sdks/luma-agents-go/option).
 
 ### Pagination
 
@@ -377,7 +369,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/lumalabs/luma-agents-go/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/luma-agents-go/issues) with questions, bugs, or suggestions.
 
 ## Contributing
 
