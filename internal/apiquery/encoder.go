@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lumalabs/luma-agents-go/internal/param"
+	"github.com/stainless-sdks/luma-agents-go/internal/param"
 )
 
 var encoders sync.Map // map[reflect.Type]encoderFunc

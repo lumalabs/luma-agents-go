@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lumalabs/luma-agents-go/internal"
-	"github.com/lumalabs/luma-agents-go/internal/apierror"
-	"github.com/lumalabs/luma-agents-go/internal/apiform"
-	"github.com/lumalabs/luma-agents-go/internal/apiquery"
-	"github.com/lumalabs/luma-agents-go/internal/param"
+	"github.com/stainless-sdks/luma-agents-go/internal"
+	"github.com/stainless-sdks/luma-agents-go/internal/apierror"
+	"github.com/stainless-sdks/luma-agents-go/internal/apiform"
+	"github.com/stainless-sdks/luma-agents-go/internal/apiquery"
+	"github.com/stainless-sdks/luma-agents-go/internal/param"
 )
 
 func getDefaultHeaders() map[string]string {
