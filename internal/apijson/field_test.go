@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lumalabs/luma-agents-go/internal/param"
+	"github.com/stainless-sdks/luma-agents-go/internal/param"
 )
 
 type Struct struct {
