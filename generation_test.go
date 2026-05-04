@@ -42,6 +42,7 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 		}),
 		Style:     lumaagents.F(lumaagents.GenerationNewParamsStyleAuto),
 		Type:      lumaagents.F(lumaagents.GenerationNewParamsTypeImage),
+		UserID:    lumaagents.F("user_id"),
 		WebSearch: lumaagents.F(true),
 	})
 	if err != nil {
