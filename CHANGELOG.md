@@ -1,0 +1,27 @@
+# Changelog
+
+## 0.1.0 (2026-05-04)
+
+Full Changelog: [v0.0.1...v0.1.0](https://github.com/lumalabs/luma-agents-go/compare/v0.0.1...v0.1.0)
+
+### Features
+
+* **api:** add budget_exhausted to GenerationFailureCode enum ([fd504db](https://github.com/lumalabs/luma-agents-go/commit/fd504dbdb026034806f095582b99fe35cb6ff1fa))
+* **api:** add Model enum to generations ([e9b03cb](https://github.com/lumalabs/luma-agents-go/commit/e9b03cb1d7d639e22ed2e74fc8ed05fd7cc6f890))
+* **api:** add user_id parameter and failure codes to generation ([a17b240](https://github.com/lumalabs/luma-agents-go/commit/a17b240d1e0ea4ca6b8161054bde1a2f65bd36c5))
+* **api:** manual updates ([9eb38f1](https://github.com/lumalabs/luma-agents-go/commit/9eb38f1719217895c2ba272ea0c3b6242410c42a))
+* **api:** manual updates ([a6cc425](https://github.com/lumalabs/luma-agents-go/commit/a6cc4255998246231bf39b74924654e47885008f))
+* **api:** manual updates ([f9fdac9](https://github.com/lumalabs/luma-agents-go/commit/f9fdac9c7c90dbb98a0368e17b470a7c1d5e4f86))
+* **api:** manual updates ([48f24ef](https://github.com/lumalabs/luma-agents-go/commit/48f24ef335abd001c55e0710f8b262721c08274a))
+* **api:** manual updates ([1eb8dd7](https://github.com/lumalabs/luma-agents-go/commit/1eb8dd7fa70d48693952d6c3b9a5fb6000c59471))
+* **go:** add default http client with timeout ([76c8e71](https://github.com/lumalabs/luma-agents-go/commit/76c8e71643d696be73fd0ae69b62ea6de5ab0a00))
+* support setting headers via env ([4f9d186](https://github.com/lumalabs/luma-agents-go/commit/4f9d1866cb99cdbe7aaa862e6dbfb4618144f0bf))
+
+
+### Chores
+
+* avoid embedding reflect.Type for dead code elimination ([ba6efa4](https://github.com/lumalabs/luma-agents-go/commit/ba6efa474ae8c1b5df1f4ff74de2ca399bb75f8d))
+* configure new SDK language ([4e9400b](https://github.com/lumalabs/luma-agents-go/commit/4e9400b98bb6c02f50d0570193059bd1c82bc580))
+* **internal:** more robust bootstrap script ([0e933a6](https://github.com/lumalabs/luma-agents-go/commit/0e933a6974d08f4ebaf5670ba2c1e655cbf2db75))
+* **tests:** bump steady to v0.22.1 ([a4978d3](https://github.com/lumalabs/luma-agents-go/commit/a4978d3e93fca35a9ea91de58ccfeee421277551))
+* update SDK settings ([2da7659](https://github.com/lumalabs/luma-agents-go/commit/2da7659e1d4dcdbbfb4d0be688d5d5e4ec07a943))
