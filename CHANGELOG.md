@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.1 (2026-05-05)
+
+Full Changelog: [v0.1.0...v0.1.1](https://github.com/lumalabs/luma-agents-go/compare/v0.1.0...v0.1.1)
+
+### Chores
+
+* update SDK settings ([9cdfc0d](https://github.com/lumalabs/luma-agents-go/commit/9cdfc0d01d9f496c0cb6037a58746e6e747b6404))
+
+
+### Documentation
+
+* update API documentation URL in README ([0477642](https://github.com/lumalabs/luma-agents-go/commit/047764273f33a078961fb8cfe0775ea3811ff366))
+
 ## 0.1.0 (2026-05-04)
 
 Full Changelog: [v0.0.1...v0.1.0](https://github.com/lumalabs/luma-agents-go/compare/v0.0.1...v0.1.0)
