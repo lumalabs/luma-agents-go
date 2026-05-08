@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.2 (2026-05-08)
+
+Full Changelog: [v0.1.1...v0.1.2](https://github.com/lumalabs/luma-agents-go/compare/v0.1.1...v0.1.2)
+
+### Bug Fixes
+
+* **go:** avoid panic when http.DefaultTransport is wrapped ([c0fb2e0](https://github.com/lumalabs/luma-agents-go/commit/c0fb2e0dde33da16595de87f1d411ba69b44c8ba))
+
+
+### Chores
+
+* redact api-key headers in debug logs ([faba02f](https://github.com/lumalabs/luma-agents-go/commit/faba02f31599188c63c11865c245dcd50a4b3957))
+
 ## 0.1.1 (2026-05-05)
 
 Full Changelog: [v0.1.0...v0.1.1](https://github.com/lumalabs/luma-agents-go/compare/v0.1.0...v0.1.1)
