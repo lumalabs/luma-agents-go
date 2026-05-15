@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 (2026-05-15)
+
+Full Changelog: [v0.1.2...v0.1.3](https://github.com/lumalabs/luma-agents-go/compare/v0.1.2...v0.1.3)
+
 ## 0.1.2 (2026-05-08)
 
 Full Changelog: [v0.1.1...v0.1.2](https://github.com/lumalabs/luma-agents-go/compare/v0.1.1...v0.1.2)
