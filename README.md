@@ -22,7 +22,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/lumalabs/luma-agents-go@v0.1.2'
+go get -u 'github.com/lumalabs/luma-agents-go@v0.1.3'
 ```
 
 <!-- x-release-please-end -->
