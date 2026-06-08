@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 (2026-06-08)
+
+Full Changelog: [v0.1.3...v0.3.0](https://github.com/lumalabs/luma-agents-go/compare/v0.1.3...v0.3.0)
+
+### Features
+
+* **api:** add video generation support with ray models and video options ([fb4506c](https://github.com/lumalabs/luma-agents-go/commit/fb4506c4a845e8c6c554a5871d24c39af669315a))
+
 ## 0.1.3 (2026-05-15)
 
 Full Changelog: [v0.1.2...v0.1.3](https://github.com/lumalabs/luma-agents-go/compare/v0.1.2...v0.1.3)
