@@ -34,7 +34,7 @@ func NewGenerationService(opts ...option.RequestOption) (r *GenerationService) {
 	return
 }
 
-// Submit an image generation or edit job. Returns immediately with an opaque job
+// Submit an image or video generation job. Returns immediately with an opaque job
 // ID to poll via GET /generations/{id}.
 func (r *GenerationService) New(ctx context.Context, body GenerationNewParams, opts ...option.RequestOption) (res *Generation, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -54,6 +54,46 @@ func (r *GenerationService) Get(ctx context.Context, generationID string, opts .
 	path := fmt.Sprintf("generations/%s", generationID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
+}
+
+// Per-signal manual conditioning controls for video edits
+type AdvancedControlsParam struct {
+	// Depth / scene-geometry conditioning control
+	Depth param.Field[DepthControlParam] `json:"depth"`
+	// Face-identity conditioning control
+	Face param.Field[FaceControlParam] `json:"face"`
+	// Surface-normals conditioning control
+	Normals param.Field[NormalsControlParam] `json:"normals"`
+	// Pose / skeleton conditioning control
+	Pose param.Field[PoseControlParam] `json:"pose"`
+	// Motion-trajectory conditioning control
+	Trajectory param.Field[TrajectoryControlParam] `json:"trajectory"`
+}
+
+func (r AdvancedControlsParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Depth / scene-geometry conditioning control
+type DepthControlParam struct {
+	// Depth-map blur amount from 0 to 1. Higher values allow more geometric freedom.
+	Blur param.Field[float64] `json:"blur"`
+	// Enable or disable depth conditioning. Omit to use the model default.
+	Enabled param.Field[bool] `json:"enabled"`
+}
+
+func (r DepthControlParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Face-identity conditioning control
+type FaceControlParam struct {
+	// Enable or disable face conditioning. Omit to use the model default.
+	Enabled param.Field[bool] `json:"enabled"`
+}
+
+func (r FaceControlParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 // Generation status and output
@@ -121,13 +161,16 @@ func (r GenerationState) IsKnown() bool {
 type GenerationType string
 
 const (
-	GenerationTypeImage     GenerationType = "image"
-	GenerationTypeImageEdit GenerationType = "image_edit"
+	GenerationTypeImage        GenerationType = "image"
+	GenerationTypeImageEdit    GenerationType = "image_edit"
+	GenerationTypeVideo        GenerationType = "video"
+	GenerationTypeVideoEdit    GenerationType = "video_edit"
+	GenerationTypeVideoReframe GenerationType = "video_reframe"
 )
 
 func (r GenerationType) IsKnown() bool {
 	switch r {
-	case GenerationTypeImage, GenerationTypeImageEdit:
+	case GenerationTypeImage, GenerationTypeImageEdit, GenerationTypeVideo, GenerationTypeVideoEdit, GenerationTypeVideoReframe:
 		return true
 	}
 	return false
@@ -158,7 +201,7 @@ func (r GenerationFailureCode) IsKnown() bool {
 
 // A single generated output
 type GenerationOutput struct {
-	// Media type (e.g. image)
+	// Media type (e.g. image, video)
 	Type string `json:"type" api:"required"`
 	// Presigned URL (1hr expiry)
 	URL  string               `json:"url" api:"required" format:"uri"`
@@ -182,19 +225,246 @@ func (r generationOutputJSON) RawJSON() string {
 	return r.raw
 }
 
-// Model identifier. `uni-1` is the default tier; `uni-1-max` produces
-// higher-quality output than `uni-1` at a higher per-image price. Both models are
-// available to all accounts — see Pricing for per-image rates.
+// Media reference for guided generation. Provide exactly one of url, inline base64
+// data, or generation_id. URL/data references accept image media at image
+// positions; video_edit and video_reframe sources also accept source.url or
+// source.data when source.media_type is a video/\* MIME. generation_id chains
+// image_edit off a prior image output, video_edit/video_reframe off a prior video
+// output, and video.start_frame/end_frame for extension.
+type ImageRefParam struct {
+	// Base64-encoded image or video data
+	Data param.Field[string] `json:"data"`
+	// UUID of a prior generation owned by the same caller. Used on source for
+	// image_edit, video_edit, and video_reframe chaining and on video.start_frame /
+	// video.end_frame for video extension.
+	GenerationID param.Field[string] `json:"generation_id" format:"uuid"`
+	// MIME type (for example, image/jpeg or video/mp4). Required with data. Required
+	// with source.url on video_edit/video_reframe so the route can dispatch video
+	// ingest before fetching bytes; optional for image URLs.
+	MediaType param.Field[string] `json:"media_type"`
+	// Publicly accessible image URL, or a video URL when used as source for
+	// video_edit/video_reframe with media_type=video/\*.
+	URL param.Field[string] `json:"url"`
+}
+
+func (r ImageRefParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Model identifier. `uni-1` is the default image tier; `uni-1-max` produces
+// higher-quality output than `uni-1` at a higher per-image price. `ray-3.2` is the
+// public video model for text-to-video, image-to-video, and video-to-video
+// editing.
 type Model string
 
 const (
 	ModelUni1    Model = "uni-1"
 	ModelUni1Max Model = "uni-1-max"
+	ModelRay3_2  Model = "ray-3.2"
 )
 
 func (r Model) IsKnown() bool {
 	switch r {
-	case ModelUni1, ModelUni1Max:
+	case ModelUni1, ModelUni1Max, ModelRay3_2:
+		return true
+	}
+	return false
+}
+
+// Surface-normals conditioning control
+type NormalsControlParam struct {
+	// Surface-normals augmentation from 0 to 1. Higher values allow more
+	// reinterpretation of surface geometry.
+	Augmentation param.Field[float64] `json:"augmentation"`
+	// Enable or disable normals conditioning. Omit to use the model default.
+	Enabled param.Field[bool] `json:"enabled"`
+}
+
+func (r NormalsControlParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Pose / skeleton conditioning control
+type PoseControlParam struct {
+	// Enable or disable pose conditioning. Omit to use the model default.
+	Enabled param.Field[bool] `json:"enabled"`
+	// Pose-conditioning strength
+	Strength param.Field[PoseControlStrength] `json:"strength"`
+}
+
+func (r PoseControlParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Pose-conditioning strength
+type PoseControlStrength string
+
+const (
+	PoseControlStrengthPrecise PoseControlStrength = "precise"
+	PoseControlStrengthCoarse  PoseControlStrength = "coarse"
+)
+
+func (r PoseControlStrength) IsKnown() bool {
+	switch r {
+	case PoseControlStrengthPrecise, PoseControlStrengthCoarse:
+		return true
+	}
+	return false
+}
+
+// Normalized source rectangle inside the output canvas for video_reframe. Omit to
+// let the model choose the default centered-fit crop.
+type SourcePositionParam struct {
+	// Source rectangle height, as a fraction of canvas height. Up to 2.0 so the source
+	// can bleed off-canvas.
+	HNorm param.Field[float64] `json:"h_norm" api:"required"`
+	// Source rectangle width, as a fraction of canvas width. Up to 2.0 so the source
+	// can bleed off-canvas.
+	WNorm param.Field[float64] `json:"w_norm" api:"required"`
+	// Left edge of the source rectangle, as a fraction of canvas width. May be
+	// negative when the source extends off-canvas.
+	XNorm param.Field[float64] `json:"x_norm" api:"required"`
+	// Top edge of the source rectangle, as a fraction of canvas height. May be
+	// negative when the source extends off-canvas.
+	YNorm param.Field[float64] `json:"y_norm" api:"required"`
+}
+
+func (r SourcePositionParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Motion-trajectory conditioning control
+type TrajectoryControlParam struct {
+	// Enable or disable trajectory conditioning. Omit to use the model default.
+	Enabled param.Field[bool] `json:"enabled"`
+	// Point-trajectory sparsity from 0 to 1. Higher values use fewer motion anchors.
+	Sparsity param.Field[float64] `json:"sparsity"`
+}
+
+func (r TrajectoryControlParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Video duration
+type VideoDuration string
+
+const (
+	VideoDuration5s  VideoDuration = "5s"
+	VideoDuration10s VideoDuration = "10s"
+)
+
+func (r VideoDuration) IsKnown() bool {
+	switch r {
+	case VideoDuration5s, VideoDuration10s:
+		return true
+	}
+	return false
+}
+
+// Ray 3.2 video-to-video edit controls. Only valid under `video.edit` when `type`
+// is `video_edit`.
+type VideoEditOptionsParam struct {
+	// When true, the model derives the control schedule from the source video. When
+	// omitted, supplying strength or controls implies manual mode.
+	AutoControls param.Field[bool] `json:"auto_controls"`
+	// Per-signal manual conditioning controls for video edits
+	Controls param.Field[AdvancedControlsParam] `json:"controls"`
+	// Parallel list of non-negative, unique frame positions in the source video's
+	// frame grid where each keyframes[i] is anchored. Must match keyframes in length.
+	KeyframeIndexes param.Field[[]int64] `json:"keyframe_indexes"`
+	// Multi-anchor guide-frame images at arbitrary source-frame positions (parallel
+	// with keyframe_indexes). Up to 64 anchors. Mutually exclusive with
+	// video.start_frame (the single-anchor case). Each entry takes the same ImageRef
+	// shape as source / image_ref[].
+	Keyframes param.Field[[]ImageRefParam] `json:"keyframes"`
+	// How much a video edit preserves or reimagines the source
+	Strength param.Field[VideoEditStrength] `json:"strength"`
+}
+
+func (r VideoEditOptionsParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// How much a video edit preserves or reimagines the source
+type VideoEditStrength string
+
+const (
+	VideoEditStrengthAdhere1    VideoEditStrength = "adhere_1"
+	VideoEditStrengthAdhere2    VideoEditStrength = "adhere_2"
+	VideoEditStrengthAdhere3    VideoEditStrength = "adhere_3"
+	VideoEditStrengthFlex1      VideoEditStrength = "flex_1"
+	VideoEditStrengthFlex2      VideoEditStrength = "flex_2"
+	VideoEditStrengthFlex3      VideoEditStrength = "flex_3"
+	VideoEditStrengthReimagine1 VideoEditStrength = "reimagine_1"
+	VideoEditStrengthReimagine2 VideoEditStrength = "reimagine_2"
+	VideoEditStrengthReimagine3 VideoEditStrength = "reimagine_3"
+)
+
+func (r VideoEditStrength) IsKnown() bool {
+	switch r {
+	case VideoEditStrengthAdhere1, VideoEditStrengthAdhere2, VideoEditStrengthAdhere3, VideoEditStrengthFlex1, VideoEditStrengthFlex2, VideoEditStrengthFlex3, VideoEditStrengthReimagine1, VideoEditStrengthReimagine2, VideoEditStrengthReimagine3:
+		return true
+	}
+	return false
+}
+
+// Ray 3.2 video request options. Common output settings live at the top level for
+// `type=video`, `type=video_edit`, and `type=video_reframe`; video-to-video
+// conditioning lives under `edit`.
+type VideoOptionsParam struct {
+	// Video duration
+	Duration param.Field[VideoDuration] `json:"duration"`
+	// Ray 3.2 video-to-video edit controls. Only valid under `video.edit` when `type`
+	// is `video_edit`.
+	Edit param.Field[VideoEditOptionsParam] `json:"edit"`
+	// Media reference for guided generation. Provide exactly one of url, inline base64
+	// data, or generation_id. URL/data references accept image media at image
+	// positions; video_edit and video_reframe sources also accept source.url or
+	// source.data when source.media_type is a video/\* MIME. generation_id chains
+	// image_edit off a prior image output, video_edit/video_reframe off a prior video
+	// output, and video.start_frame/end_frame for extension.
+	EndFrame param.Field[ImageRefParam] `json:"end_frame"`
+	// Export EXR alongside the MP4. Requires hdr=true.
+	ExrExport param.Field[bool] `json:"exr_export"`
+	// Generate HDR video. Requires HDR access. Not supported for video_reframe.
+	Hdr param.Field[bool] `json:"hdr"`
+	// Generate a seamlessly looping video. Only valid for type=video; not supported
+	// with duration=10s or hdr=true.
+	Loop param.Field[bool] `json:"loop"`
+	// Ray 3.2 video output resolution. 1080p is public for video generation;
+	// video_reframe 1080p is still rolling out and may return a coming-soon validation
+	// error until enabled for the caller.
+	Resolution param.Field[VideoResolution] `json:"resolution"`
+	// Normalized source rectangle inside the output canvas for video_reframe. Omit to
+	// let the model choose the default centered-fit crop.
+	SourcePosition param.Field[SourcePositionParam] `json:"source_position"`
+	// Media reference for guided generation. Provide exactly one of url, inline base64
+	// data, or generation_id. URL/data references accept image media at image
+	// positions; video_edit and video_reframe sources also accept source.url or
+	// source.data when source.media_type is a video/\* MIME. generation_id chains
+	// image_edit off a prior image output, video_edit/video_reframe off a prior video
+	// output, and video.start_frame/end_frame for extension.
+	StartFrame param.Field[ImageRefParam] `json:"start_frame"`
+}
+
+func (r VideoOptionsParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Ray 3.2 video output resolution. 1080p is public for video generation;
+// video_reframe 1080p is still rolling out and may return a coming-soon validation
+// error until enabled for the caller.
+type VideoResolution string
+
+const (
+	VideoResolution540p  VideoResolution = "540p"
+	VideoResolution720p  VideoResolution = "720p"
+	VideoResolution1080p VideoResolution = "1080p"
+)
+
+func (r VideoResolution) IsKnown() bool {
+	switch r {
+	case VideoResolution540p, VideoResolution720p, VideoResolution1080p:
 		return true
 	}
 	return false
@@ -203,20 +473,26 @@ func (r Model) IsKnown() bool {
 type GenerationNewParams struct {
 	// Text prompt
 	Prompt param.Field[string] `json:"prompt" api:"required"`
-	// Output aspect ratio
+	// Output aspect ratio. Valid values depend on the selected model and generation
+	// type; the server validates the final model-specific set.
 	AspectRatio param.Field[GenerationNewParamsAspectRatio] `json:"aspect_ratio"`
 	// Reference images for style/content guidance. Up to 9 for type 'image', up to 8
 	// for type 'image_edit'.
-	ImageRef param.Field[[]GenerationNewParamsImageRef] `json:"image_ref"`
-	// Model identifier. `uni-1` is the default tier; `uni-1-max` produces
-	// higher-quality output than `uni-1` at a higher per-image price. Both models are
-	// available to all accounts — see Pricing for per-image rates.
+	ImageRef param.Field[[]ImageRefParam] `json:"image_ref"`
+	// Model identifier. `uni-1` is the default image tier; `uni-1-max` produces
+	// higher-quality output than `uni-1` at a higher per-image price. `ray-3.2` is the
+	// public video model for text-to-video, image-to-video, and video-to-video
+	// editing.
 	Model param.Field[Model] `json:"model"`
 	// Output image format
 	OutputFormat param.Field[GenerationNewParamsOutputFormat] `json:"output_format"`
-	// Reference image for guided generation. Provide either url or inline base64 data
-	// (not both).
-	Source param.Field[GenerationNewParamsSource] `json:"source"`
+	// Media reference for guided generation. Provide exactly one of url, inline base64
+	// data, or generation_id. URL/data references accept image media at image
+	// positions; video_edit and video_reframe sources also accept source.url or
+	// source.data when source.media_type is a video/\* MIME. generation_id chains
+	// image_edit off a prior image output, video_edit/video_reframe off a prior video
+	// output, and video.start_frame/end_frame for extension.
+	Source param.Field[ImageRefParam] `json:"source"`
 	// Style preset (auto, manga)
 	Style param.Field[GenerationNewParamsStyle] `json:"style"`
 	// The kind of generation to perform
@@ -227,6 +503,10 @@ type GenerationNewParams struct {
 	// for per-end-user usage breakdowns in /v1/usage. Strongly recommended for partner
 	// integrations.
 	UserID param.Field[string] `json:"user_id"`
+	// Ray 3.2 video request options. Common output settings live at the top level for
+	// `type=video`, `type=video_edit`, and `type=video_reframe`; video-to-video
+	// conditioning lives under `edit`.
+	Video param.Field[VideoOptionsParam] `json:"video"`
 	// Enable web search grounding — the agent can search the web and download
 	// reference images before generating.
 	WebSearch param.Field[bool] `json:"web_search"`
@@ -236,15 +516,19 @@ func (r GenerationNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// Output aspect ratio
+// Output aspect ratio. Valid values depend on the selected model and generation
+// type; the server validates the final model-specific set.
 type GenerationNewParamsAspectRatio string
 
 const (
 	GenerationNewParamsAspectRatio3_1  GenerationNewParamsAspectRatio = "3:1"
 	GenerationNewParamsAspectRatio2_1  GenerationNewParamsAspectRatio = "2:1"
+	GenerationNewParamsAspectRatio21_9 GenerationNewParamsAspectRatio = "21:9"
 	GenerationNewParamsAspectRatio16_9 GenerationNewParamsAspectRatio = "16:9"
+	GenerationNewParamsAspectRatio4_3  GenerationNewParamsAspectRatio = "4:3"
 	GenerationNewParamsAspectRatio3_2  GenerationNewParamsAspectRatio = "3:2"
 	GenerationNewParamsAspectRatio1_1  GenerationNewParamsAspectRatio = "1:1"
+	GenerationNewParamsAspectRatio3_4  GenerationNewParamsAspectRatio = "3:4"
 	GenerationNewParamsAspectRatio2_3  GenerationNewParamsAspectRatio = "2:3"
 	GenerationNewParamsAspectRatio9_16 GenerationNewParamsAspectRatio = "9:16"
 	GenerationNewParamsAspectRatio1_2  GenerationNewParamsAspectRatio = "1:2"
@@ -253,25 +537,10 @@ const (
 
 func (r GenerationNewParamsAspectRatio) IsKnown() bool {
 	switch r {
-	case GenerationNewParamsAspectRatio3_1, GenerationNewParamsAspectRatio2_1, GenerationNewParamsAspectRatio16_9, GenerationNewParamsAspectRatio3_2, GenerationNewParamsAspectRatio1_1, GenerationNewParamsAspectRatio2_3, GenerationNewParamsAspectRatio9_16, GenerationNewParamsAspectRatio1_2, GenerationNewParamsAspectRatio1_3:
+	case GenerationNewParamsAspectRatio3_1, GenerationNewParamsAspectRatio2_1, GenerationNewParamsAspectRatio21_9, GenerationNewParamsAspectRatio16_9, GenerationNewParamsAspectRatio4_3, GenerationNewParamsAspectRatio3_2, GenerationNewParamsAspectRatio1_1, GenerationNewParamsAspectRatio3_4, GenerationNewParamsAspectRatio2_3, GenerationNewParamsAspectRatio9_16, GenerationNewParamsAspectRatio1_2, GenerationNewParamsAspectRatio1_3:
 		return true
 	}
 	return false
-}
-
-// Reference image for guided generation. Provide either url or inline base64 data
-// (not both).
-type GenerationNewParamsImageRef struct {
-	// Base64-encoded image data
-	Data param.Field[string] `json:"data"`
-	// MIME type (e.g. image/jpeg). Required with data.
-	MediaType param.Field[string] `json:"media_type"`
-	// Publicly accessible image URL
-	URL param.Field[string] `json:"url"`
-}
-
-func (r GenerationNewParamsImageRef) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 // Output image format
@@ -288,21 +557,6 @@ func (r GenerationNewParamsOutputFormat) IsKnown() bool {
 		return true
 	}
 	return false
-}
-
-// Reference image for guided generation. Provide either url or inline base64 data
-// (not both).
-type GenerationNewParamsSource struct {
-	// Base64-encoded image data
-	Data param.Field[string] `json:"data"`
-	// MIME type (e.g. image/jpeg). Required with data.
-	MediaType param.Field[string] `json:"media_type"`
-	// Publicly accessible image URL
-	URL param.Field[string] `json:"url"`
-}
-
-func (r GenerationNewParamsSource) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 // Style preset (auto, manga)
@@ -325,13 +579,16 @@ func (r GenerationNewParamsStyle) IsKnown() bool {
 type GenerationNewParamsType string
 
 const (
-	GenerationNewParamsTypeImage     GenerationNewParamsType = "image"
-	GenerationNewParamsTypeImageEdit GenerationNewParamsType = "image_edit"
+	GenerationNewParamsTypeImage        GenerationNewParamsType = "image"
+	GenerationNewParamsTypeImageEdit    GenerationNewParamsType = "image_edit"
+	GenerationNewParamsTypeVideo        GenerationNewParamsType = "video"
+	GenerationNewParamsTypeVideoEdit    GenerationNewParamsType = "video_edit"
+	GenerationNewParamsTypeVideoReframe GenerationNewParamsType = "video_reframe"
 )
 
 func (r GenerationNewParamsType) IsKnown() bool {
 	switch r {
-	case GenerationNewParamsTypeImage, GenerationNewParamsTypeImageEdit:
+	case GenerationNewParamsTypeImage, GenerationNewParamsTypeImageEdit, GenerationNewParamsTypeVideo, GenerationNewParamsTypeVideoEdit, GenerationNewParamsTypeVideoReframe:
 		return true
 	}
 	return false
