@@ -19,6 +19,7 @@ import (
 type Client struct {
 	Options     []option.RequestOption
 	Generations *GenerationService
+	Files       *FileService
 }
 
 // DefaultClientOptions read from the environment (LUMA_AGENTS_API_KEY,
@@ -52,6 +53,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r = &Client{Options: opts}
 
 	r.Generations = NewGenerationService(opts...)
+	r.Files = NewFileService(opts...)
 
 	return
 }
