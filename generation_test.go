@@ -30,6 +30,7 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 		AspectRatio: lumaagents.F(lumaagents.GenerationNewParamsAspectRatio3_1),
 		ImageRef: lumaagents.F([]lumaagents.ImageRefParam{{
 			Data:         lumaagents.F("data"),
+			FileID:       lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			GenerationID: lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			MediaType:    lumaagents.F("media_type"),
 			URL:          lumaagents.F("url"),
@@ -38,6 +39,7 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 		OutputFormat: lumaagents.F(lumaagents.GenerationNewParamsOutputFormatPng),
 		Source: lumaagents.F(lumaagents.ImageRefParam{
 			Data:         lumaagents.F("data"),
+			FileID:       lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			GenerationID: lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			MediaType:    lumaagents.F("media_type"),
 			URL:          lumaagents.F("url"),
@@ -73,6 +75,7 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 				KeyframeIndexes: lumaagents.F([]int64{int64(0)}),
 				Keyframes: lumaagents.F([]lumaagents.ImageRefParam{{
 					Data:         lumaagents.F("data"),
+					FileID:       lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 					GenerationID: lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 					MediaType:    lumaagents.F("media_type"),
 					URL:          lumaagents.F("url"),
@@ -81,14 +84,23 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 			}),
 			EndFrame: lumaagents.F(lumaagents.ImageRefParam{
 				Data:         lumaagents.F("data"),
+				FileID:       lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 				GenerationID: lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 				MediaType:    lumaagents.F("media_type"),
 				URL:          lumaagents.F("url"),
 			}),
-			ExrExport:  lumaagents.F(true),
-			Hdr:        lumaagents.F(true),
+			ExrExport:       lumaagents.F(true),
+			Hdr:             lumaagents.F(true),
+			KeyframeIndexes: lumaagents.F([]int64{int64(0)}),
+			Keyframes: lumaagents.F([]lumaagents.ImageRefParam{{
+				Data:         lumaagents.F("data"),
+				FileID:       lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+				GenerationID: lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+				MediaType:    lumaagents.F("media_type"),
+				URL:          lumaagents.F("url"),
+			}}),
 			Loop:       lumaagents.F(true),
-			Resolution: lumaagents.F(lumaagents.VideoResolution540p),
+			Resolution: lumaagents.F(lumaagents.VideoResolution360p),
 			SourcePosition: lumaagents.F(lumaagents.SourcePositionParam{
 				HNorm: lumaagents.F(1.000000),
 				WNorm: lumaagents.F(1.000000),
@@ -97,6 +109,7 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 			}),
 			StartFrame: lumaagents.F(lumaagents.ImageRefParam{
 				Data:         lumaagents.F("data"),
+				FileID:       lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 				GenerationID: lumaagents.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 				MediaType:    lumaagents.F("media_type"),
 				URL:          lumaagents.F("url"),

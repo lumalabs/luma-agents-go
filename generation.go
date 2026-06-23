@@ -226,14 +226,20 @@ func (r generationOutputJSON) RawJSON() string {
 }
 
 // Media reference for guided generation. Provide exactly one of url, inline base64
-// data, or generation_id. URL/data references accept image media at image
+// data, generation_id, or file_id. URL/data references accept image media at image
 // positions; video_edit and video_reframe sources also accept source.url or
 // source.data when source.media_type is a video/\* MIME. generation_id chains
 // image_edit off a prior image output, video_edit/video_reframe off a prior video
-// output, and video.start_frame/end_frame for extension.
+// output, and video.start_frame/end_frame for extension. file_id references a file
+// previously uploaded via POST /files — see the Files API.
 type ImageRefParam struct {
 	// Base64-encoded image or video data
 	Data param.Field[string] `json:"data"`
+	// UUID of a file previously uploaded via POST /files. Skips URL fetch / base64
+	// decode and reuses the file's pre-moderated backing artifact. The referenced file
+	// must be owned by the same client and in state=ready. See the Files API for the
+	// upload flow.
+	FileID param.Field[string] `json:"file_id" format:"uuid"`
 	// UUID of a prior generation owned by the same caller. Used on source for
 	// image_edit, video_edit, and video_reframe chaining and on video.start_frame /
 	// video.end_frame for video extension.
@@ -362,7 +368,8 @@ func (r VideoDuration) IsKnown() bool {
 }
 
 // Ray 3.2 video-to-video edit controls. Only valid under `video.edit` when `type`
-// is `video_edit`.
+// is `video_edit`. The source video must be 18 seconds or shorter; output duration
+// matches the source.
 type VideoEditOptionsParam struct {
 	// When true, the model derives the control schedule from the source video. When
 	// omitted, supplying strength or controls implies manual mode.
@@ -415,23 +422,40 @@ type VideoOptionsParam struct {
 	// Video duration
 	Duration param.Field[VideoDuration] `json:"duration"`
 	// Ray 3.2 video-to-video edit controls. Only valid under `video.edit` when `type`
-	// is `video_edit`.
+	// is `video_edit`. The source video must be 18 seconds or shorter; output duration
+	// matches the source.
 	Edit param.Field[VideoEditOptionsParam] `json:"edit"`
 	// Media reference for guided generation. Provide exactly one of url, inline base64
-	// data, or generation_id. URL/data references accept image media at image
+	// data, generation_id, or file_id. URL/data references accept image media at image
 	// positions; video_edit and video_reframe sources also accept source.url or
 	// source.data when source.media_type is a video/\* MIME. generation_id chains
 	// image_edit off a prior image output, video_edit/video_reframe off a prior video
-	// output, and video.start_frame/end_frame for extension.
+	// output, and video.start_frame/end_frame for extension. file_id references a file
+	// previously uploaded via POST /files — see the Files API.
 	EndFrame param.Field[ImageRefParam] `json:"end_frame"`
 	// Export EXR alongside the MP4. Requires hdr=true.
 	ExrExport param.Field[bool] `json:"exr_export"`
 	// Generate HDR video. Requires HDR access. Not supported for video_reframe.
 	Hdr param.Field[bool] `json:"hdr"`
+	// Parallel list of non-negative, unique output-frame positions where each
+	// keyframes[i] is anchored, in the duration x 24fps grid (5s -> 0..120, 10s ->
+	// 0..240). Must match keyframes in length.
+	KeyframeIndexes param.Field[[]int64] `json:"keyframe_indexes"`
+	// Image-to-video guide frames (type=video only), each pinned to an output-frame
+	// position via the parallel keyframe_indexes. 1-64 anchors: a single anchor is a
+	// valid start-pinned i2v (an alternate to start_frame), and any count up to 64
+	// places guide frames at arbitrary positions. Unlike start_frame/end_frame (the
+	// legacy 2-frame surface), this supports arbitrary positions, 10s durations, and
+	// HDR. Mutually exclusive with start_frame / end_frame / loop. Only supported on
+	// model ray-3.2. For video-to-video keyframes use video.edit.keyframes on
+	// type=video_edit instead.
+	Keyframes param.Field[[]ImageRefParam] `json:"keyframes"`
 	// Generate a seamlessly looping video. Only valid for type=video; not supported
 	// with duration=10s or hdr=true.
 	Loop param.Field[bool] `json:"loop"`
-	// Ray 3.2 video output resolution. 1080p is public for video generation;
+	// Ray 3.2 video output resolution. 360p is the draft tier (fast, low-cost
+	// previews), accepted on type=video, video_edit, and video_reframe; on type=video
+	// it is SDR-only (not valid with hdr=true). 1080p is public for video generation;
 	// video_reframe 1080p is still rolling out and may return a coming-soon validation
 	// error until enabled for the caller.
 	Resolution param.Field[VideoResolution] `json:"resolution"`
@@ -439,11 +463,12 @@ type VideoOptionsParam struct {
 	// let the model choose the default centered-fit crop.
 	SourcePosition param.Field[SourcePositionParam] `json:"source_position"`
 	// Media reference for guided generation. Provide exactly one of url, inline base64
-	// data, or generation_id. URL/data references accept image media at image
+	// data, generation_id, or file_id. URL/data references accept image media at image
 	// positions; video_edit and video_reframe sources also accept source.url or
 	// source.data when source.media_type is a video/\* MIME. generation_id chains
 	// image_edit off a prior image output, video_edit/video_reframe off a prior video
-	// output, and video.start_frame/end_frame for extension.
+	// output, and video.start_frame/end_frame for extension. file_id references a file
+	// previously uploaded via POST /files — see the Files API.
 	StartFrame param.Field[ImageRefParam] `json:"start_frame"`
 }
 
@@ -451,12 +476,15 @@ func (r VideoOptionsParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// Ray 3.2 video output resolution. 1080p is public for video generation;
+// Ray 3.2 video output resolution. 360p is the draft tier (fast, low-cost
+// previews), accepted on type=video, video_edit, and video_reframe; on type=video
+// it is SDR-only (not valid with hdr=true). 1080p is public for video generation;
 // video_reframe 1080p is still rolling out and may return a coming-soon validation
 // error until enabled for the caller.
 type VideoResolution string
 
 const (
+	VideoResolution360p  VideoResolution = "360p"
 	VideoResolution540p  VideoResolution = "540p"
 	VideoResolution720p  VideoResolution = "720p"
 	VideoResolution1080p VideoResolution = "1080p"
@@ -464,7 +492,7 @@ const (
 
 func (r VideoResolution) IsKnown() bool {
 	switch r {
-	case VideoResolution540p, VideoResolution720p, VideoResolution1080p:
+	case VideoResolution360p, VideoResolution540p, VideoResolution720p, VideoResolution1080p:
 		return true
 	}
 	return false
@@ -487,11 +515,12 @@ type GenerationNewParams struct {
 	// Output image format
 	OutputFormat param.Field[GenerationNewParamsOutputFormat] `json:"output_format"`
 	// Media reference for guided generation. Provide exactly one of url, inline base64
-	// data, or generation_id. URL/data references accept image media at image
+	// data, generation_id, or file_id. URL/data references accept image media at image
 	// positions; video_edit and video_reframe sources also accept source.url or
 	// source.data when source.media_type is a video/\* MIME. generation_id chains
 	// image_edit off a prior image output, video_edit/video_reframe off a prior video
-	// output, and video.start_frame/end_frame for extension.
+	// output, and video.start_frame/end_frame for extension. file_id references a file
+	// previously uploaded via POST /files — see the Files API.
 	Source param.Field[ImageRefParam] `json:"source"`
 	// Style preset (auto, manga)
 	Style param.Field[GenerationNewParamsStyle] `json:"style"`
