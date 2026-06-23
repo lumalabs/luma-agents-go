@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 (2026-06-23)
+
+Full Changelog: [v0.3.0...v0.4.0](https://github.com/lumalabs/luma-agents-go/compare/v0.3.0...v0.4.0)
+
+### Features
+
+* **api:** add files resource with 5 methods, file_id to generation image refs ([9cacd7d](https://github.com/lumalabs/luma-agents-go/commit/9cacd7d3720ae4fea0dfe67dc7315f24555b1208))
+* **api:** add keyframe_indexes and keyframes parameters to generation video options ([2d8a5ac](https://github.com/lumalabs/luma-agents-go/commit/2d8a5ac4ebc1f4e75472a0fec53e9c51414aba1e))
+
 ## 0.3.0 (2026-06-08)
 
 Full Changelog: [v0.1.3...v0.3.0](https://github.com/lumalabs/luma-agents-go/compare/v0.1.3...v0.3.0)
