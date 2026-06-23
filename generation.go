@@ -226,14 +226,20 @@ func (r generationOutputJSON) RawJSON() string {
 }
 
 // Media reference for guided generation. Provide exactly one of url, inline base64
-// data, or generation_id. URL/data references accept image media at image
+// data, generation_id, or file_id. URL/data references accept image media at image
 // positions; video_edit and video_reframe sources also accept source.url or
 // source.data when source.media_type is a video/\* MIME. generation_id chains
 // image_edit off a prior image output, video_edit/video_reframe off a prior video
-// output, and video.start_frame/end_frame for extension.
+// output, and video.start_frame/end_frame for extension. file_id references a file
+// previously uploaded via POST /files — see the Files API.
 type ImageRefParam struct {
 	// Base64-encoded image or video data
 	Data param.Field[string] `json:"data"`
+	// UUID of a file previously uploaded via POST /files. Skips URL fetch / base64
+	// decode and reuses the file's pre-moderated backing artifact. The referenced file
+	// must be owned by the same client and in state=ready. See the Files API for the
+	// upload flow.
+	FileID param.Field[string] `json:"file_id" format:"uuid"`
 	// UUID of a prior generation owned by the same caller. Used on source for
 	// image_edit, video_edit, and video_reframe chaining and on video.start_frame /
 	// video.end_frame for video extension.
@@ -420,11 +426,12 @@ type VideoOptionsParam struct {
 	// matches the source.
 	Edit param.Field[VideoEditOptionsParam] `json:"edit"`
 	// Media reference for guided generation. Provide exactly one of url, inline base64
-	// data, or generation_id. URL/data references accept image media at image
+	// data, generation_id, or file_id. URL/data references accept image media at image
 	// positions; video_edit and video_reframe sources also accept source.url or
 	// source.data when source.media_type is a video/\* MIME. generation_id chains
 	// image_edit off a prior image output, video_edit/video_reframe off a prior video
-	// output, and video.start_frame/end_frame for extension.
+	// output, and video.start_frame/end_frame for extension. file_id references a file
+	// previously uploaded via POST /files — see the Files API.
 	EndFrame param.Field[ImageRefParam] `json:"end_frame"`
 	// Export EXR alongside the MP4. Requires hdr=true.
 	ExrExport param.Field[bool] `json:"exr_export"`
@@ -456,11 +463,12 @@ type VideoOptionsParam struct {
 	// let the model choose the default centered-fit crop.
 	SourcePosition param.Field[SourcePositionParam] `json:"source_position"`
 	// Media reference for guided generation. Provide exactly one of url, inline base64
-	// data, or generation_id. URL/data references accept image media at image
+	// data, generation_id, or file_id. URL/data references accept image media at image
 	// positions; video_edit and video_reframe sources also accept source.url or
 	// source.data when source.media_type is a video/\* MIME. generation_id chains
 	// image_edit off a prior image output, video_edit/video_reframe off a prior video
-	// output, and video.start_frame/end_frame for extension.
+	// output, and video.start_frame/end_frame for extension. file_id references a file
+	// previously uploaded via POST /files — see the Files API.
 	StartFrame param.Field[ImageRefParam] `json:"start_frame"`
 }
 
@@ -507,11 +515,12 @@ type GenerationNewParams struct {
 	// Output image format
 	OutputFormat param.Field[GenerationNewParamsOutputFormat] `json:"output_format"`
 	// Media reference for guided generation. Provide exactly one of url, inline base64
-	// data, or generation_id. URL/data references accept image media at image
+	// data, generation_id, or file_id. URL/data references accept image media at image
 	// positions; video_edit and video_reframe sources also accept source.url or
 	// source.data when source.media_type is a video/\* MIME. generation_id chains
 	// image_edit off a prior image output, video_edit/video_reframe off a prior video
-	// output, and video.start_frame/end_frame for extension.
+	// output, and video.start_frame/end_frame for extension. file_id references a file
+	// previously uploaded via POST /files — see the Files API.
 	Source param.Field[ImageRefParam] `json:"source"`
 	// Style preset (auto, manga)
 	Style param.Field[GenerationNewParamsStyle] `json:"style"`
