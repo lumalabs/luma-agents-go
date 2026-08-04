@@ -35,6 +35,9 @@ func TestGenerationNewWithOptionalParams(t *testing.T) {
 			MediaType:    lumaagents.F("media_type"),
 			URL:          lumaagents.F("url"),
 		}}),
+		Layering: lumaagents.F(lumaagents.GenerationNewParamsLayering{
+			Resolution: lumaagents.F(lumaagents.GenerationNewParamsLayeringResolution1k),
+		}),
 		Model:        lumaagents.F(lumaagents.ModelUni1),
 		OutputFormat: lumaagents.F(lumaagents.GenerationNewParamsOutputFormatPng),
 		Source: lumaagents.F(lumaagents.ImageRefParam{
