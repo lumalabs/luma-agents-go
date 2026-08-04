@@ -166,11 +166,12 @@ const (
 	GenerationTypeVideo        GenerationType = "video"
 	GenerationTypeVideoEdit    GenerationType = "video_edit"
 	GenerationTypeVideoReframe GenerationType = "video_reframe"
+	GenerationTypeLayering     GenerationType = "layering"
 )
 
 func (r GenerationType) IsKnown() bool {
 	switch r {
-	case GenerationTypeImage, GenerationTypeImageEdit, GenerationTypeVideo, GenerationTypeVideoEdit, GenerationTypeVideoReframe:
+	case GenerationTypeImage, GenerationTypeImageEdit, GenerationTypeVideo, GenerationTypeVideoEdit, GenerationTypeVideoReframe, GenerationTypeLayering:
 		return true
 	}
 	return false
@@ -204,8 +205,10 @@ type GenerationOutput struct {
 	// Media type (e.g. image, video)
 	Type string `json:"type" api:"required"`
 	// Presigned URL (1hr expiry)
-	URL  string               `json:"url" api:"required" format:"uri"`
-	JSON generationOutputJSON `json:"-"`
+	URL string `json:"url" api:"required" format:"uri"`
+	// Per-layer semantics for a type=layering output
+	Layer GenerationOutputLayer `json:"layer" api:"nullable"`
+	JSON  generationOutputJSON  `json:"-"`
 }
 
 // generationOutputJSON contains the JSON metadata for the struct
@@ -213,6 +216,7 @@ type GenerationOutput struct {
 type generationOutputJSON struct {
 	Type        apijson.Field
 	URL         apijson.Field
+	Layer       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -222,6 +226,39 @@ func (r *GenerationOutput) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r generationOutputJSON) RawJSON() string {
+	return r.raw
+}
+
+// Per-layer semantics for a type=layering output
+type GenerationOutputLayer struct {
+	// Edge treatment of the layer's transparency — soft (hair/fur/glass), hard (solid
+	// edges), or none (the opaque background)
+	AlphaHint string `json:"alpha_hint" api:"required"`
+	// Complete-element caption for the layer's content
+	Description string `json:"description" api:"required"`
+	// Layer position, front-to-back; the last layer is the background
+	Index int64 `json:"index" api:"required"`
+	// Short (1-2 word) layer name
+	Label string                    `json:"label" api:"required"`
+	JSON  generationOutputLayerJSON `json:"-"`
+}
+
+// generationOutputLayerJSON contains the JSON metadata for the struct
+// [GenerationOutputLayer]
+type generationOutputLayerJSON struct {
+	AlphaHint   apijson.Field
+	Description apijson.Field
+	Index       apijson.Field
+	Label       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *GenerationOutputLayer) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r generationOutputLayerJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -507,6 +544,10 @@ type GenerationNewParams struct {
 	// Reference images for style/content guidance. Up to 9 for type 'image', up to 8
 	// for type 'image_edit'.
 	ImageRef param.Field[[]ImageRefParam] `json:"image_ref"`
+	// Layer-extraction options for type=layering (model uni-1). The image to decompose
+	// rides body.source; body.prompt optionally guides how to split it (max 500
+	// characters). The server plans the layers automatically before generating.
+	Layering param.Field[GenerationNewParamsLayering] `json:"layering"`
 	// Model identifier. `uni-1` is the default image tier; `uni-1-max` produces
 	// higher-quality output than `uni-1` at a higher per-image price. `ray-3.2` is the
 	// public video model for text-to-video, image-to-video, and video-to-video
@@ -572,6 +613,36 @@ func (r GenerationNewParamsAspectRatio) IsKnown() bool {
 	return false
 }
 
+// Layer-extraction options for type=layering (model uni-1). The image to decompose
+// rides body.source; body.prompt optionally guides how to split it (max 500
+// characters). The server plans the layers automatically before generating.
+type GenerationNewParamsLayering struct {
+	// Output resolution for every extracted layer. 1k is faster and lower cost; 2k
+	// re-renders each layer at higher quality (priced higher, per layer).
+	Resolution param.Field[GenerationNewParamsLayeringResolution] `json:"resolution"`
+}
+
+func (r GenerationNewParamsLayering) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Output resolution for every extracted layer. 1k is faster and lower cost; 2k
+// re-renders each layer at higher quality (priced higher, per layer).
+type GenerationNewParamsLayeringResolution string
+
+const (
+	GenerationNewParamsLayeringResolution1k GenerationNewParamsLayeringResolution = "1k"
+	GenerationNewParamsLayeringResolution2k GenerationNewParamsLayeringResolution = "2k"
+)
+
+func (r GenerationNewParamsLayeringResolution) IsKnown() bool {
+	switch r {
+	case GenerationNewParamsLayeringResolution1k, GenerationNewParamsLayeringResolution2k:
+		return true
+	}
+	return false
+}
+
 // Output image format
 type GenerationNewParamsOutputFormat string
 
@@ -613,11 +684,12 @@ const (
 	GenerationNewParamsTypeVideo        GenerationNewParamsType = "video"
 	GenerationNewParamsTypeVideoEdit    GenerationNewParamsType = "video_edit"
 	GenerationNewParamsTypeVideoReframe GenerationNewParamsType = "video_reframe"
+	GenerationNewParamsTypeLayering     GenerationNewParamsType = "layering"
 )
 
 func (r GenerationNewParamsType) IsKnown() bool {
 	switch r {
-	case GenerationNewParamsTypeImage, GenerationNewParamsTypeImageEdit, GenerationNewParamsTypeVideo, GenerationNewParamsTypeVideoEdit, GenerationNewParamsTypeVideoReframe:
+	case GenerationNewParamsTypeImage, GenerationNewParamsTypeImageEdit, GenerationNewParamsTypeVideo, GenerationNewParamsTypeVideoEdit, GenerationNewParamsTypeVideoReframe, GenerationNewParamsTypeLayering:
 		return true
 	}
 	return false
