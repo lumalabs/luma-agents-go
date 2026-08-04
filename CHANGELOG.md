@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 (2026-08-04)
+
+Full Changelog: [v0.4.0...v0.5.0](https://github.com/lumalabs/luma-agents-go/compare/v0.4.0...v0.5.0)
+
+### Features
+
+* **api:** add layering type, layer output field, layering param to generation ([788a56a](https://github.com/lumalabs/luma-agents-go/commit/788a56ae7e8b9b16da709329520ebaf6be54a448))
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([46eda89](https://github.com/lumalabs/luma-agents-go/commit/46eda898df5c6580536edd6e9a0ffa5040a16268))
+
 ## 0.4.0 (2026-06-23)
 
 Full Changelog: [v0.3.0...v0.4.0](https://github.com/lumalabs/luma-agents-go/compare/v0.3.0...v0.4.0)
