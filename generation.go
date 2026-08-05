@@ -239,8 +239,14 @@ type GenerationOutputLayer struct {
 	// Layer position, front-to-back; the last layer is the background
 	Index int64 `json:"index" api:"required"`
 	// Short (1-2 word) layer name
-	Label string                    `json:"label" api:"required"`
-	JSON  generationOutputLayerJSON `json:"-"`
+	Label string `json:"label" api:"required"`
+	// Where a layer's returned pixels sit inside the full composite frame. Layer
+	// images are cropped to their visible-alpha bounding box, so layers of one stack
+	// have differing pixel dimensions. Composite onto a transparent canvas_width x
+	// canvas_height image by pasting each layer at (x, y), iterating the output list
+	// in reverse (back-to-front), to reconstruct the source frame.
+	Bounds GenerationOutputLayerBounds `json:"bounds" api:"nullable"`
+	JSON   generationOutputLayerJSON   `json:"-"`
 }
 
 // generationOutputLayerJSON contains the JSON metadata for the struct
@@ -250,6 +256,7 @@ type generationOutputLayerJSON struct {
 	Description apijson.Field
 	Index       apijson.Field
 	Label       apijson.Field
+	Bounds      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -259,6 +266,48 @@ func (r *GenerationOutputLayer) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r generationOutputLayerJSON) RawJSON() string {
+	return r.raw
+}
+
+// Where a layer's returned pixels sit inside the full composite frame. Layer
+// images are cropped to their visible-alpha bounding box, so layers of one stack
+// have differing pixel dimensions. Composite onto a transparent canvas_width x
+// canvas_height image by pasting each layer at (x, y), iterating the output list
+// in reverse (back-to-front), to reconstruct the source frame.
+type GenerationOutputLayerBounds struct {
+	// Height of the full composite canvas the layers reassemble into
+	CanvasHeight int64 `json:"canvas_height" api:"required"`
+	// Width of the full composite canvas the layers reassemble into
+	CanvasWidth int64 `json:"canvas_width" api:"required"`
+	// Pixel height of the returned layer image
+	Height int64 `json:"height" api:"required"`
+	// Pixel width of the returned layer image
+	Width int64 `json:"width" api:"required"`
+	// Left offset of this layer's pixels within the composite canvas
+	X int64 `json:"x" api:"required"`
+	// Top offset of this layer's pixels within the composite canvas
+	Y    int64                           `json:"y" api:"required"`
+	JSON generationOutputLayerBoundsJSON `json:"-"`
+}
+
+// generationOutputLayerBoundsJSON contains the JSON metadata for the struct
+// [GenerationOutputLayerBounds]
+type generationOutputLayerBoundsJSON struct {
+	CanvasHeight apijson.Field
+	CanvasWidth  apijson.Field
+	Height       apijson.Field
+	Width        apijson.Field
+	X            apijson.Field
+	Y            apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *GenerationOutputLayerBounds) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r generationOutputLayerBoundsJSON) RawJSON() string {
 	return r.raw
 }
 
