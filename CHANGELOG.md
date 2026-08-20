@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.0 (2026-08-20)
+
+Full Changelog: [v0.5.0...v0.6.0](https://github.com/lumalabs/luma-agents-go/compare/v0.5.0...v0.6.0)
+
+### Features
+
+* **api:** add bounds field to generation output layer ([59b532b](https://github.com/lumalabs/luma-agents-go/commit/59b532bdf0f7cb55bc6e45510437c25ef2284fc2))
+* **api:** add guide_frame parameter to video options ([21c108c](https://github.com/lumalabs/luma-agents-go/commit/21c108c82489ec315144a510b6db24d367bfd406))
+
+
+### Chores
+
+* **internal:** allow the mock server port to be set with STAINLESS_MOCK_PORT ([725ec32](https://github.com/lumalabs/luma-agents-go/commit/725ec329e2b55bde71269309b4837f9eb4731b5f))
+
 ## 0.5.0 (2026-08-04)
 
 Full Changelog: [v0.4.0...v0.5.0](https://github.com/lumalabs/luma-agents-go/compare/v0.4.0...v0.5.0)
