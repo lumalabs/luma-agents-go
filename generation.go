@@ -655,6 +655,7 @@ const (
 	GenerationNewParamsAspectRatio4_3  GenerationNewParamsAspectRatio = "4:3"
 	GenerationNewParamsAspectRatio3_2  GenerationNewParamsAspectRatio = "3:2"
 	GenerationNewParamsAspectRatio1_1  GenerationNewParamsAspectRatio = "1:1"
+	GenerationNewParamsAspectRatio4_5  GenerationNewParamsAspectRatio = "4:5"
 	GenerationNewParamsAspectRatio3_4  GenerationNewParamsAspectRatio = "3:4"
 	GenerationNewParamsAspectRatio2_3  GenerationNewParamsAspectRatio = "2:3"
 	GenerationNewParamsAspectRatio9_16 GenerationNewParamsAspectRatio = "9:16"
@@ -664,7 +665,7 @@ const (
 
 func (r GenerationNewParamsAspectRatio) IsKnown() bool {
 	switch r {
-	case GenerationNewParamsAspectRatio3_1, GenerationNewParamsAspectRatio2_1, GenerationNewParamsAspectRatio21_9, GenerationNewParamsAspectRatio16_9, GenerationNewParamsAspectRatio4_3, GenerationNewParamsAspectRatio3_2, GenerationNewParamsAspectRatio1_1, GenerationNewParamsAspectRatio3_4, GenerationNewParamsAspectRatio2_3, GenerationNewParamsAspectRatio9_16, GenerationNewParamsAspectRatio1_2, GenerationNewParamsAspectRatio1_3:
+	case GenerationNewParamsAspectRatio3_1, GenerationNewParamsAspectRatio2_1, GenerationNewParamsAspectRatio21_9, GenerationNewParamsAspectRatio16_9, GenerationNewParamsAspectRatio4_3, GenerationNewParamsAspectRatio3_2, GenerationNewParamsAspectRatio1_1, GenerationNewParamsAspectRatio4_5, GenerationNewParamsAspectRatio3_4, GenerationNewParamsAspectRatio2_3, GenerationNewParamsAspectRatio9_16, GenerationNewParamsAspectRatio1_2, GenerationNewParamsAspectRatio1_3:
 		return true
 	}
 	return false
